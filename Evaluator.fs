@@ -3,20 +3,28 @@ module Evaluator
 open System
 open Model
 
-let roll (rnd: Random) (x: Dice) =
-    let rolls =
-        [ for _ in 1 .. x.Count do
-              rnd.Next(0, x.Size) + 1 ]
+let roll (rnd: Random) (vexpr: ValueExpressions) =
+    match vexpr with
+    | Flat n ->
+        {
+            DiceExpression = n.ToString()
+            Result = Single n
+            Rolls = []
+        }
+    | Dice d ->
+        let rolls =
+            [ for _ in 1 .. d.Count do
+                rnd.Next(0, d.Size) + 1 ]
 
-    let result =
-        match x.Method with
-        | Total -> List.sum rolls |> Single
-        | KeepHigh n -> List.sortDescending rolls |> List.take n |> Multiple
-        | KeepLow n -> List.sort rolls |> List.take n |> Multiple
+        let result =
+            match d.Method with
+            | Total -> List.sum rolls |> Single
+            | KeepHigh n -> List.sortDescending rolls |> List.take n |> Multiple
+            | KeepLow n -> List.sort rolls |> List.take n |> Multiple
 
-    { DiceExpression = $"{x.Count}D{x.Size}{x.Method.ToString()}"
-      Result = result
-      Rolls = rolls }
+        { DiceExpression = $"{d.Count}D{d.Size}{d.Method.ToString()}"
+          Result = result
+          Rolls = rolls }
 
 let eval (rnd: Random) (expr: Expression) =
     let rec eval_inner
@@ -51,7 +59,7 @@ let eval (rnd: Random) (expr: Expression) =
                   Total = total
                   Expression = $"{accumulatingResult.Expression} {report.DiceExpression} {op}" }
 
-            eval_inner rnd opFun res expr
+            eval_inner rnd opFun res e
 
     eval_inner
         rnd

@@ -24,24 +24,31 @@ module Dice =
     let count = pint32
     let size = pint32
     let method = RollingMethod.RollingMethodParser
-
     let DiceParser =
         count .>> (pchar 'd' <|> pchar 'D') .>>. size .>>. method
         |>> fun ((count, size), method) ->
             { Count = count
               Size = size
               Method = method }
+            // |> ValueExpressions.Dice
+
+    let FlatParser = pint32 
+        // |>> ValueExpressions.Flat
 
 module Expression =
     let add = skipChar '+' |>> fun () -> Add
     let subtract = skipChar '-' |>> fun () -> Subtract
 
-    let terminating = Dice.DiceParser |>> Terminating
+    let valueExpression = 
+        attempt (Dice.DiceParser |>> ValueExpressions.Dice)
+        <|> (Dice.FlatParser |>> ValueExpressions.Flat) 
+
+    let terminating = valueExpression |>> Terminating
 
     let ExpressionParser, private expressionRef = createParserForwardedToRef ()
 
     let operator =
-        Dice.DiceParser .>> spaces .>>. (add <|> subtract) .>> spaces
+        valueExpression .>> spaces .>>. (add <|> subtract) .>> spaces
         .>>. ExpressionParser
         |>> fun ((d, op), e) -> { left = d; right = e; operator = op }
 

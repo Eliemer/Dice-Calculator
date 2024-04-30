@@ -39,6 +39,10 @@ type Dice =
       Method: RollingMethod
       Size: int }
 
+type ValueExpressions =
+    | Dice of Dice
+    | Flat of int
+
 type Operator =
     | Add
     | Subtract
@@ -50,9 +54,9 @@ type Operator =
 
 type OperatorRecord =
     { operator: Operator
-      left: Dice
+      left: ValueExpressions
       right: Expression }
 
 and Expression =
-    | Terminating of Dice
+    | Terminating of ValueExpressions
     | Continuing of OperatorRecord
