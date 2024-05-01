@@ -2,27 +2,6 @@ namespace Model
 
 open System
 
-type RollResult =
-    | Single of int
-    | Multiple of int list
-
-type RollReport =
-    { DiceExpression: string
-      Result: RollResult
-      Rolls: int list }
-
-    member report.Results =
-        match report.Result with
-        | Single r -> [ r ]
-        | Multiple rs -> rs
-
-    member report.Total = List.sum report.Results
-
-type ExpressionReport =
-    { Result: RollReport list
-      Total: int
-      Expression: string }
-
 type RollingMethod =
     | Total
     | KeepHigh of int

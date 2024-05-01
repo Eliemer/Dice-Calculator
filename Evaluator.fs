@@ -3,6 +3,27 @@ module Evaluator
 open System
 open Model
 
+type RollResult =
+    | Single of int
+    | Multiple of int list
+
+type RollReport =
+    { DiceExpression: string
+      Result: RollResult
+      Rolls: int list }
+
+    member report.Results =
+        match report.Result with
+        | Single r -> [ r ]
+        | Multiple rs -> rs
+
+    member report.Total = List.sum report.Results
+
+type ExpressionReport =
+    { Result: RollReport list
+      Total: int
+      Expression: string }
+
 let roll (rnd: Random) (vexpr: ValueExpressions) =
     match vexpr with
     | Flat n ->
@@ -57,7 +78,7 @@ let eval (rnd: Random) (expr: Expression) =
             let res =
                 { Result = report :: accumulatingResult.Result
                   Total = total
-                  Expression = $"{accumulatingResult.Expression} {report.DiceExpression} {op}" }
+                  Expression = $"{accumulatingResult.Expression} {report.DiceExpression} {op.ToString()}" }
 
             eval_inner rnd opFun res e
 
