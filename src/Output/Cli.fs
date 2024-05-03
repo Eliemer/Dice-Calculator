@@ -25,8 +25,8 @@ module Cli =
                     |> printfn "    All rolls: [%s]"
 
             match report.Result with
-            | Single n -> printfn "    Selected roll: %d" n
-            | Multiple ns -> 
+            | [n] -> printfn "    Selected roll: %d" n
+            | ns -> 
                 ns
                 |> List.map _.ToString()
                 |> String.concat ", "

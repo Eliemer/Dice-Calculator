@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Dice_Calculator_Discord_Bot</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Output/Discord.fs" />
+    <Compile Include="DiceBot.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-02230" />
+    <PackageReference Include="DSharpPlus.Commands" Version="5.0.0-nightly-02230" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\src\Dice Calculator.fsproj" />
+  </ItemGroup>
+</Project>

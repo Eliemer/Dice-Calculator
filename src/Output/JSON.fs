@@ -33,7 +33,7 @@ module Json =
                 [ for res in er.Result do
                       { RollReportDto.Total = res.Total
                         Rolls = res.Rolls
-                        Selected = res.Results
+                        Selected = res.Result
                         Expression = res.DiceExpression } ] }
 
         JsonSerializer.Serialize(dto, opt)

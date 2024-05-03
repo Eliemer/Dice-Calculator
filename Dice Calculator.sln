@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Dice Calculator", "src\Dice Calculator.fsproj", "{F46F1E71-B8E6-4009-BE10-97916F479BAC}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Dice Calculator Discord Bot", "bot\Dice Calculator Discord Bot.fsproj", "{6D20DA2F-432E-44EA-9EC0-DE5BB0B3896B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F46F1E71-B8E6-4009-BE10-97916F479BAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F46F1E71-B8E6-4009-BE10-97916F479BAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F46F1E71-B8E6-4009-BE10-97916F479BAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F46F1E71-B8E6-4009-BE10-97916F479BAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D20DA2F-432E-44EA-9EC0-DE5BB0B3896B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D20DA2F-432E-44EA-9EC0-DE5BB0B3896B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D20DA2F-432E-44EA-9EC0-DE5BB0B3896B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D20DA2F-432E-44EA-9EC0-DE5BB0B3896B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -3,21 +3,12 @@ module Evaluator
 open System
 open Model
 
-type RollResult =
-    | Single of int
-    | Multiple of int list
-
 type RollReport =
     { DiceExpression: string
-      Result: RollResult
+      Result: int list
       Rolls: int list }
 
-    member report.Results =
-        match report.Result with
-        | Single r -> [ r ]
-        | Multiple rs -> rs
-
-    member report.Total = List.sum report.Results
+    member report.Total = List.sum report.Result
 
 type ExpressionReport =
     { Result: RollReport list
@@ -29,7 +20,7 @@ let roll (rnd: Random) (vexpr: ValueExpressions) =
     | Flat n ->
         {
             DiceExpression = n.ToString()
-            Result = Single n
+            Result = [n]
             Rolls = []
         }
     | Dice d ->
@@ -39,9 +30,9 @@ let roll (rnd: Random) (vexpr: ValueExpressions) =
 
         let result =
             match d.Method with
-            | Total -> List.sum rolls |> Single
-            | KeepHigh n -> List.sortDescending rolls |> List.take n |> Multiple
-            | KeepLow n -> List.sort rolls |> List.take n |> Multiple
+            | Total -> rolls
+            | KeepHigh n -> List.sortDescending rolls |> List.take n 
+            | KeepLow n -> List.sort rolls |> List.take n 
 
         { DiceExpression = $"{d.Count}D{d.Size}{d.Method.ToString()}"
           Result = result
@@ -59,7 +50,7 @@ let eval (rnd: Random) (expr: Expression) =
             let report = roll rnd d
 
             { Result = report :: accumulatingResult.Result |> List.rev
-              Total = List.sum report.Results |> accumulator
+              Total = List.sum report.Result |> accumulator
               Expression =
                 $"{accumulatingResult.Expression} {report.DiceExpression}"
                     .Trim()
