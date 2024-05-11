@@ -46,8 +46,8 @@ module Expression =
         <|> (Dice.FlatParser |>> ValueExpression.Flat) 
 
     let ExpressionParser =
-        valueExpression .>> spaces
-        .>>. many (operator .>> spaces .>>. valueExpression)
+        spaces >>. valueExpression
+        .>>. many (spaces >>. operator .>> spaces .>>. valueExpression)
         |>> fun (first, rest) -> {First = first; Rest= rest}
 
     let evaluate str =
