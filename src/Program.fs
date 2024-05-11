@@ -20,6 +20,8 @@ let main args =
         |> Result.map (Evaluator.eval rnd)
         // |> Result.iter Cli.prettyPrintReport
         |> Result.map (Output.Json.jsonify)
-        |> Result.iter (printfn "%s")
+        |> function
+            | Error msg -> printfn "Error: %s" msg
+            | Ok res -> printfn "Result:\n%s" res
 
     1

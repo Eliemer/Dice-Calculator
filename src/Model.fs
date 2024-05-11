@@ -18,7 +18,7 @@ type Dice =
       Method: RollingMethod
       Size: int }
 
-type ValueExpressions =
+type ValueExpression =
     | Dice of Dice
     | Flat of int
 
@@ -31,11 +31,8 @@ type Operator =
         | Add -> "+"
         | Subtract -> "-"
 
-type OperatorRecord =
-    { operator: Operator
-      left: ValueExpressions
-      right: Expression }
-
-and Expression =
-    | Terminating of ValueExpressions
-    | Continuing of OperatorRecord
+type Expression =
+    {
+        First: ValueExpression
+        Rest: (Operator * ValueExpression) list
+    }

@@ -39,22 +39,16 @@ module Expression =
     let add = skipChar '+' |>> fun () -> Add
     let subtract = skipChar '-' |>> fun () -> Subtract
 
+    let operator = (attempt add) <|> subtract
+
     let valueExpression = 
-        attempt (Dice.DiceParser |>> ValueExpressions.Dice)
-        <|> (Dice.FlatParser |>> ValueExpressions.Flat) 
+        attempt (Dice.DiceParser |>> ValueExpression.Dice)
+        <|> (Dice.FlatParser |>> ValueExpression.Flat) 
 
-    let terminating = valueExpression |>> Terminating
-
-    let ExpressionParser, private expressionRef = createParserForwardedToRef ()
-
-    let operator =
-        valueExpression .>> spaces .>>. (add <|> subtract) .>> spaces
-        .>>. ExpressionParser
-        |>> fun ((d, op), e) -> { left = d; right = e; operator = op }
-
-    let continuing = operator |>> Continuing
-
-    do expressionRef := ((attempt continuing) <|> terminating)
+    let ExpressionParser =
+        valueExpression .>> spaces
+        .>>. many (operator .>> spaces .>>. valueExpression)
+        |>> fun (first, rest) -> {First = first; Rest= rest}
 
     let evaluate str =
         match run ExpressionParser str with
