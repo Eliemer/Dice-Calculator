@@ -25,7 +25,12 @@ type DiceSize =
     override this.ToString() =
         match this with
         | Constant n -> n.ToString()
-        | Sequence ns -> sprintf "%A" ns
+        | Sequence ns -> 
+            let sb = System.Text.StringBuilder(ns.Length)
+            sb.Append('[')
+              .AppendJoin(',', ns |> List.toArray)
+              .Append(']')
+              .ToString()
 
 type Dice =
     { Count: int
