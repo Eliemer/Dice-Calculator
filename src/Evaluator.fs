@@ -23,8 +23,11 @@ let roll (rnd: Random) (vexpr: ValueExpression) =
           Rolls = [] }
     | Dice d ->
         let rolls =
-            [ for _ in 1 .. d.Count do
-                  rnd.Next(0, d.Size) + 1 ]
+            match d.Size with
+            | Constant s ->
+                [ for _ in 1 .. d.Count do
+                      rnd.Next(0, s) + 1 ]
+            | Sequence ns -> rnd.GetItems(ns |> List.toArray, d.Count) |> Array.toList
 
         let result =
             match d.Method with
@@ -35,50 +38,6 @@ let roll (rnd: Random) (vexpr: ValueExpression) =
         { DiceExpression = $"{d.Count}D{d.Size}{d.Method.ToString()}"
           Result = result
           Rolls = rolls }
-
-// let eval (rnd: Random) (expr: Expression) =
-//     let rec eval_inner
-//         (rnd: Random)
-//         (accumulator: int -> int)
-//         (accumulatingResult: ExpressionReport)
-//         (expr: Expression)
-//         =
-//         match expr with
-//         | Terminating d ->
-//             let report = roll rnd d
-
-//             { Result = report :: accumulatingResult.Result |> List.rev
-//               Total = List.sum report.Result |> accumulator
-//               Expression =
-//                 $"{accumulatingResult.Expression} {report.DiceExpression}"
-//                     .Trim()
-//                     .ToLowerInvariant() }
-
-//         | Continuing({ left = d; right = e; operator = op }) ->
-//             let report = roll rnd d
-
-//             let total = accumulator report.Total
-
-//             let opFun =
-//                 match op with
-//                 | Add -> (+) total
-//                 | Subtract -> (-) total
-
-//             let res =
-//                 { Result = report :: accumulatingResult.Result
-//                   Total = total
-//                   Expression = $"{accumulatingResult.Expression} {report.DiceExpression} {op.ToString()}" }
-
-//             eval_inner rnd opFun res e
-
-//     eval_inner
-//         rnd
-//         id
-//         { Result = []
-//           Total = 0
-//           Expression = String.Empty }
-//         expr
-
 
 let eval (rnd: Random) (expr: Expression) : ExpressionReport =
 
@@ -91,15 +50,19 @@ let eval (rnd: Random) (expr: Expression) : ExpressionReport =
 
     let folder (acc: ExpressionReport) ((op, vexpr): Operator * ValueExpression) =
         let report = roll rnd vexpr
+
         let res =
-            {   Result = report :: acc.Result
-                Total = 
-                    match op with
-                    | Add -> acc.Total + report.Total
-                    | Subtract -> acc.Total - report.Total
-                Expression = $"{acc.Expression} {op.ToString()} {report.DiceExpression}" }
+            { Result = report :: acc.Result
+              Total =
+                match op with
+                | Add -> acc.Total + report.Total
+                | Subtract -> acc.Total - report.Total
+              Expression = $"{acc.Expression} {op.ToString()} {report.DiceExpression}" }
 
         res
 
     List.fold folder init expr.Rest
-    |> fun res -> { res with Result = List.rev res.Result }
+    |> fun res ->
+        { res with
+            Result = List.rev res.Result
+            Expression = res.Expression.ToUpperInvariant() }

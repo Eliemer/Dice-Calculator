@@ -13,10 +13,24 @@ type RollingMethod =
         | KeepHigh n -> $"KH{n}"
         | KeepLow n -> $"KL{n}"
 
+type DiceSize =
+    | Constant of int
+    | Sequence of int list
+
+    member this.Length =
+        match this with
+        | Constant n -> n
+        | Sequence ns -> ns.Length
+
+    override this.ToString() =
+        match this with
+        | Constant n -> n.ToString()
+        | Sequence ns -> sprintf "%A" ns
+
 type Dice =
     { Count: int
       Method: RollingMethod
-      Size: int }
+      Size: DiceSize }
 
 type ValueExpression =
     | Dice of Dice
@@ -32,7 +46,5 @@ type Operator =
         | Subtract -> "-"
 
 type Expression =
-    {
-        First: ValueExpression
-        Rest: (Operator * ValueExpression) list
-    }
+    { First: ValueExpression
+      Rest: (Operator * ValueExpression) list }
