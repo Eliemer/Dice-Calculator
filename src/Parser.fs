@@ -4,6 +4,14 @@ open FParsec
 
 open Model
 
+module private Testing =
+    let (<!>) (p: Parser<_,_>) label : Parser<_,_> =
+        fun stream ->
+            printfn "%A: Entering %s" stream.Position label
+            let reply = p stream
+            printfn "%A: Leaving %s (%A)" stream.Position label reply.Status
+            reply
+
 module RollingMethod =
     let keepHigh =
         pstringCI "H" <|> pstringCI "KH" >>. opt pint32
@@ -22,15 +30,22 @@ module RollingMethod =
 
 module DiceSize =
     let constant = pint32 |>> Constant
-    let enumeration = spaces >>. sepBy pint32 (spaces .>> skipChar ',' .>> spaces)
-    let range = 
-        spaces >>. pint32 
-        .>> spaces .>> skipStringCI ".." 
-        .>> spaces .>>. pint32
-        |>> fun (a, b) -> [a..b]
 
-    let sequence = skipChar '[' >>. ((attempt range) <|> enumeration) .>> spaces .>> skipChar ']' |>> Sequence
-    let DiceSizeParser = (attempt constant) <|> sequence
+    let enumeration =
+        (sepBy pint32 (spaces .>>? skipChar ',' .>> spaces)) |>> Enumeration
+
+    let range =
+        pint32 .>> spaces .>>? skipStringCI ".." .>> spaces .>>. pint32
+        >>= fun (a, b) ->
+            if a > b then
+                fail "The right number of the range must be equal or larger than the left number"
+            else
+                preturn <| Range(a, b)
+
+    let sequence =
+        skipChar '[' >>. spaces >>. (range <|> enumeration) .>> spaces .>> skipChar ']'
+
+    let DiceSizeParser = constant <|> sequence
 
 module Dice =
     let count = pint32
@@ -38,7 +53,7 @@ module Dice =
     let method = RollingMethod.RollingMethodParser
 
     let DiceParser =
-        count .>> (pchar 'd' <|> pchar 'D') .>>. size .>>. method
+        count .>>? (pchar 'd' <|> pchar 'D') .>>. size .>>. method
         |>> fun ((count, size), method) ->
             { Count = count
               Size = size
@@ -53,7 +68,7 @@ module Expression =
     let operator = (attempt add) <|> subtract
 
     let valueExpression =
-        attempt (Dice.DiceParser |>> ValueExpression.Dice)
+        (Dice.DiceParser |>> ValueExpression.Dice)
         <|> (Dice.FlatParser |>> ValueExpression.Flat)
 
     let ExpressionParser =

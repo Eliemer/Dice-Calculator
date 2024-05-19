@@ -15,17 +15,20 @@ type RollingMethod =
 
 type DiceSize =
     | Constant of int
-    | Sequence of int list
+    | Enumeration of int list
+    | Range of int * int
 
     member this.Length =
         match this with
         | Constant n -> n
-        | Sequence ns -> ns.Length
+        | Range (a, b) -> (b - a) + 1
+        | Enumeration ns -> ns.Length
 
     override this.ToString() =
         match this with
         | Constant n -> n.ToString()
-        | Sequence ns -> 
+        | Range (a, b) -> $"[{a}..{b}]"
+        | Enumeration ns -> 
             let sb = System.Text.StringBuilder(ns.Length)
             sb.Append('[')
               .AppendJoin(',', ns |> List.toArray)

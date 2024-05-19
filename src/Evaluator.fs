@@ -27,7 +27,8 @@ let roll (rnd: Random) (vexpr: ValueExpression) =
             | Constant s ->
                 [ for _ in 1 .. d.Count do
                       rnd.Next(0, s) + 1 ]
-            | Sequence ns -> rnd.GetItems(ns |> List.toArray, d.Count) |> Array.toList
+            | Enumeration ns -> rnd.GetItems(ns |> List.toArray, d.Count) |> Array.toList
+            | Range(a, b) -> rnd.GetItems([| a..b |], d.Count) |> Array.toList
 
         let result =
             match d.Method with
