@@ -5,7 +5,7 @@ open FParsec
 open Model
 
 module private Testing =
-    let (<!>) (p: Parser<_,_>) label : Parser<_,_> =
+    let (<!>) (p: Parser<_, _>) label : Parser<_, _> =
         fun stream ->
             printfn "%A: Entering %s" stream.Position label
             let reply = p stream
@@ -14,22 +14,22 @@ module private Testing =
 
 module RollingMethod =
     let keepHigh =
-        pstringCI "H" <|> pstringCI "KH" >>. opt pint32
+        pstringCI "H" <|> pstringCI "KH" >>. opt puint32
         |>> function
             | Some n -> KeepHigh n
-            | None -> KeepHigh 1
+            | None -> KeepHigh 1u
 
     let keepLow =
-        pstringCI "L" <|> pstringCI "KL" >>. opt pint32
+        pstringCI "L" <|> pstringCI "KL" >>. opt puint32
         |>> function
             | Some n -> KeepLow n
-            | None -> KeepLow 1
+            | None -> KeepLow 1u
 
     let total = optional (pstringCI "T") |>> fun () -> Total
     let RollingMethodParser = (attempt keepHigh) <|> (attempt keepLow) <|> total
 
 module DiceSize =
-    let constant = pint32 |>> Constant
+    let constant = puint32 |>> Constant
 
     let enumeration =
         (sepBy pint32 (spaces .>>? skipChar ',' .>> spaces)) |>> Enumeration
@@ -48,18 +48,20 @@ module DiceSize =
     let DiceSizeParser = constant <|> sequence
 
 module Dice =
-    let count = pint32
+    let count = puint32
     let size = DiceSize.DiceSizeParser
     let method = RollingMethod.RollingMethodParser
 
     let DiceParser =
-        count .>>? (pchar 'd' <|> pchar 'D') .>>. size .>>. method
+        count .>> (pchar 'd' <|> pchar 'D') .>>. size .>>. method
         |>> fun ((count, size), method) ->
             { Count = count
               Size = size
               Method = method }
 
-    let FlatParser = pint32
+    let FlatParser =
+        pint32 .>>? notFollowedByStringCI "d"
+        <?> "integer number (32-bit, signed) not followed by 'd' (case-insensitive)"
 
 module Expression =
     let add = skipChar '+' |>> fun () -> Add
@@ -68,8 +70,8 @@ module Expression =
     let operator = (attempt add) <|> subtract
 
     let valueExpression =
-        (Dice.DiceParser |>> ValueExpression.Dice)
-        <|> (Dice.FlatParser |>> ValueExpression.Flat)
+        (Dice.FlatParser |>> ValueExpression.Flat)
+        <|> (Dice.DiceParser |>> ValueExpression.Dice)
 
     let ExpressionParser =
         spaces >>. valueExpression

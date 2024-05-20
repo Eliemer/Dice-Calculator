@@ -4,8 +4,8 @@ open System
 
 type RollingMethod =
     | Total
-    | KeepHigh of int
-    | KeepLow of int
+    | KeepHigh of uint
+    | KeepLow of uint
 
     override x.ToString() =
         match x with
@@ -14,29 +14,26 @@ type RollingMethod =
         | KeepLow n -> $"KL{n}"
 
 type DiceSize =
-    | Constant of int
+    | Constant of uint
     | Enumeration of int list
     | Range of int * int
 
     member this.Length =
         match this with
-        | Constant n -> n
-        | Range (a, b) -> (b - a) + 1
+        | Constant n -> int n
+        | Range(a, b) -> (b - a) + 1
         | Enumeration ns -> ns.Length
 
     override this.ToString() =
         match this with
         | Constant n -> n.ToString()
-        | Range (a, b) -> $"[{a}..{b}]"
-        | Enumeration ns -> 
+        | Range(a, b) -> $"[{a}..{b}]"
+        | Enumeration ns ->
             let sb = System.Text.StringBuilder(ns.Length)
-            sb.Append('[')
-              .AppendJoin(',', ns |> List.toArray)
-              .Append(']')
-              .ToString()
+            sb.Append('[').AppendJoin(',', ns |> List.toArray).Append(']').ToString()
 
 type Dice =
-    { Count: int
+    { Count: uint
       Method: RollingMethod
       Size: DiceSize }
 

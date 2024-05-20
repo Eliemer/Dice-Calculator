@@ -25,16 +25,16 @@ let roll (rnd: Random) (vexpr: ValueExpression) =
         let rolls =
             match d.Size with
             | Constant s ->
-                [ for _ in 1 .. d.Count do
-                      rnd.Next(0, s) + 1 ]
-            | Enumeration ns -> rnd.GetItems(ns |> List.toArray, d.Count) |> Array.toList
-            | Range(a, b) -> rnd.GetItems([| a..b |], d.Count) |> Array.toList
+                [ for _ in 1u .. d.Count do
+                      rnd.Next(0, int s) + 1 ]
+            | Enumeration ns -> rnd.GetItems(ns |> List.toArray, int d.Count) |> Array.toList
+            | Range(a, b) -> rnd.GetItems([| a..b |], int d.Count) |> Array.toList
 
         let result =
             match d.Method with
             | Total -> rolls
-            | KeepLow n -> List.sort rolls |> List.take n
-            | KeepHigh n -> List.sortDescending rolls |> List.take n
+            | KeepLow n -> List.sort rolls |> List.take (int n)
+            | KeepHigh n -> List.sortDescending rolls |> List.take (int n)
 
         { DiceExpression = $"{d.Count}D{d.Size}{d.Method.ToString()}"
           Result = result
