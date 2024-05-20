@@ -4,7 +4,7 @@ open System
 open Output
 
 [<EntryPoint>]
-let main args =
+let main _args =
     let rnd = Random()
 
     while true do
@@ -18,10 +18,8 @@ let main args =
                 Ok input
         |> Result.bind Parser.Expression.evaluate
         |> Result.map (Evaluator.eval rnd)
-        // |> Result.iter Cli.prettyPrintReport
-        |> Result.map (Output.Json.jsonify)
         |> function
-            | Error msg -> printfn "Error: %s" msg
-            | Ok res -> printfn "Result:\n%s" res
+            | Ok rep -> Cli.prettyPrintReport rep
+            | Error msg -> printfn "----\n%s----" msg
 
     1
